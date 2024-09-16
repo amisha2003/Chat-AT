@@ -6,7 +6,7 @@ const chatRoutes = require("./routes/chatRoutes");
 const messageRoutes = require("./routes/messageRoutes");
 const { notFound, errorHandler } = require("./middleware/errorMiddleware");
 const path = require("path");
-
+const cors = require("cors");
 dotenv.config();
 connectDB();
 const app = express();
@@ -42,6 +42,7 @@ if (process.env.NODE_ENV === "production") {
 // Error Handling middlewares
 app.use(notFound);
 app.use(errorHandler);
+app.use(cors());
 
 const PORT = process.env.PORT;
 
