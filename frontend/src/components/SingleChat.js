@@ -18,6 +18,37 @@ import { ChatState } from "../Context/ChatProvider";
 const ENDPOINT = "http://localhost:5001"; // "https://talk-a-tive.herokuapp.com"; -> After deployment
 var socket, selectedChatCompare;
 
+
+/**
+ * SingleChat component handles the display and functionality of a single chat interface.
+ * It manages message fetching, sending, and real-time updates via socket.io.
+ *
+ * @component
+ * @param {Object} props - The component props.
+ * @param {boolean} props.fetchAgain - A flag to trigger re-fetching of messages.
+ * @param {Function} props.setFetchAgain - Function to update the fetchAgain flag.
+ *
+ * @returns {JSX.Element} The rendered SingleChat component.
+ *
+ * @example
+ * <SingleChat fetchAgain={fetchAgain} setFetchAgain={setFetchAgain} />
+ *
+ * @description
+ * The SingleChat component is responsible for:
+ * - Fetching messages for the selected chat.
+ * - Sending new messages.
+ * - Handling real-time updates for new messages and typing indicators.
+ * - Displaying the chat interface including messages, typing indicators, and chat details.
+ *
+ * @function fetchMessages - Fetches messages for the selected chat from the server.
+ * @function sendMessage - Sends a new message when the Enter key is pressed.
+ * @function typingHandler - Handles typing events and emits typing status via socket.io.
+ *
+ * @hook useEffect - Sets up socket.io connection and event listeners.
+ * @hook useEffect - Fetches messages when the selected chat changes.
+ * @hook useEffect - Handles incoming messages and updates the chat interface.
+ */
+
 const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
