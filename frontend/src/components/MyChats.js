@@ -9,25 +9,68 @@ import GroupChatModal from "./miscellaneous/GroupChatModal";
 import { Button } from "@chakra-ui/react";
 import { ChatState } from "../Context/ChatProvider";
 
+/**
+ * MyChats component displays the list of chats for the logged-in user.
+ * 
+ * @component
+ * @param {Object} props - Component props
+ * @param {boolean} props.fetchAgain - Flag to trigger re-fetching of chats
+ * 
+ * @returns {JSX.Element} The rendered MyChats component
+ * 
+ * @example
+ * <MyChats fetchAgain={true} />
+ * 
+ * @hook
+ * @name useState
+ * @description Manages the state of the logged-in user
+ * 
+ * @hook
+ * @name useEffect
+ * @description Fetches chats on component mount and when fetchAgain changes
+ * 
+ * @hook
+ * @name useToast
+ * @description Displays toast notifications
+ * 
+ * @function fetchChats
+ * @description Fetches chats from the server and updates the state
+ * 
+ * @async
+ * @throws Will display an error toast if the request fails
+ * 
+ * @returns {Promise<void>}
+ * 
+ * @example
+ * fetchChats();
+ */
+
 const MyChats = ({ fetchAgain }) => {
   const [loggedUser, setLoggedUser] = useState();
 
+  // Destructuring values from ChatState context
   const { selectedChat, setSelectedChat, user, chats, setChats } = ChatState();
 
+  // Hook for displaying toast notifications
   const toast = useToast();
 
+  // Function to fetch chats from the server
   const fetchChats = async () => {
-    // console.log(user._id);
+    // console.log(user._id); // Debugging line, commented out
     try {
+      // Configuration for the request, including authorization header
       const config = {
         headers: {
           Authorization: `Bearer ${user.token}`,
         },
       };
 
+      // Making a GET request to fetch chats
       const { data } = await axios.get("/api/chat", config);
+      // Setting the fetched chats to state
       setChats(data);
     } catch (error) {
+      // Displaying an error toast if the request fails
       toast({
         title: "Error Occured!",
         description: "Failed to Load the chats",
@@ -39,13 +82,17 @@ const MyChats = ({ fetchAgain }) => {
     }
   };
 
+  // useEffect hook to run on component mount and when fetchAgain changes
   useEffect(() => {
+    // Setting the logged-in user from local storage
     setLoggedUser(JSON.parse(localStorage.getItem("userInfo")));
+    // Fetching chats
     fetchChats();
     // eslint-disable-next-line
   }, [fetchAgain]);
 
   return (
+    // Main container for the MyChats component
     <Box
       display={{ base: selectedChat ? "none" : "flex", md: "flex" }}
       flexDir="column"
@@ -56,6 +103,7 @@ const MyChats = ({ fetchAgain }) => {
       borderRadius="lg"
       borderWidth="1px"
     >
+      {/* Header section with title and button to create a new group chat */}
       <Box
         pb={3}
         px={3}
@@ -77,6 +125,7 @@ const MyChats = ({ fetchAgain }) => {
           </Button>
         </GroupChatModal>
       </Box>
+      {/* Container for the list of chats */}
       <Box
         display="flex"
         flexDir="column"
@@ -88,6 +137,7 @@ const MyChats = ({ fetchAgain }) => {
         overflowY="hidden"
       >
         {chats ? (
+          // If chats are available, display them in a scrollable stack
           <Stack overflowY="scroll">
             {chats.map((chat) => (
               <Box
@@ -101,6 +151,7 @@ const MyChats = ({ fetchAgain }) => {
                 key={chat._id}
               >
                 <Text>
+                  {/* Display the sender's name or chat name */}
                   {!chat.isGroupChat
                     ? getSender(loggedUser, chat.users)
                     : chat.chatName}
@@ -117,11 +168,12 @@ const MyChats = ({ fetchAgain }) => {
             ))}
           </Stack>
         ) : (
+          // If no chats are available, display a loading component
           <ChatLoading />
         )}
       </Box>
     </Box>
   );
-};
+}
 
 export default MyChats;
